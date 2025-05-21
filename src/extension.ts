@@ -27,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
         })
       }).then(() => {
         if (!editor) { return }
-        sel = sel.sort((a, b) => a.start.isBefore(b.start) ? -1 : 1)
+        sel = [...sel].sort((a, b) => a.start.isBefore(b.start) ? -1 : 1)
         let count = 0
         let lst = -1
         editor.selections = sel.map((selection) => {
@@ -62,7 +62,7 @@ export function activate(context: vscode.ExtensionContext) {
         })
       }).then(() => {
         if (!editor) { return }
-        sel = sel.sort((a, b) => a.start.isBefore(b.start) ? -1 : 1)
+        sel = [...sel].sort((a, b) => a.start.isBefore(b.start) ? -1 : 1)
         let count = 0
         let lst = -1
         editor.selections = sel.map((selection) => {
@@ -408,7 +408,7 @@ export function activate(context: vscode.ExtensionContext) {
         content = match[1]
         end = '\n$' + line.text.slice(match.index + match[0].length, line.text.length)
       }
-      const relations = ['=', '\\cong', '\\thickapprox', '\\neq', '<', '>', '\\le', '\\ge', '\\leqslant', '\\geqslant']
+      const relations = ['=', '\\cong', '\\thickapprox', '\\neq', '<', '>', '\\le', '\\ge','\\leq', '\\geq', '\\sim', '\\ll', '\\gg', '\\leqslant', '\\geqslant']
       let bracketCount = 0
       let lst = 0
       let cur = 0
@@ -422,6 +422,12 @@ export function activate(context: vscode.ExtensionContext) {
         if (bracketCount === 0) {
           for (const relation of relations) {
             if (content.length - cur >= relation.length && content.slice(cur, cur + relation.length) === relation) {
+              if (relation.startsWith('\\')) {
+                const nextChar = content[cur + relation.length]
+                if (nextChar && /[a-zA-Z]/.test(nextChar)) {
+                  continue
+                }
+              }
               txtList.push(content.slice(lst, cur).trim())
               txtList.push(relation)
               cur += relation.length - 1
